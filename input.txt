@@ -1,0 +1,4 @@
+-p	/mnt/d/scratch/projects/fiducial_128
+-f	DD data
+-r	100 100
+-t	vx vy vz |gradrho|
