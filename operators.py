@@ -6,8 +6,7 @@ def d(data, field, dir):
 	sliceL = slice(None,-2)
 	all = slice(1,-1)
 	all_all = tuple([all]*3)
-	print(data)
-	dxi = 1./(2*data.ds.dds)
+	dxi = 1./(2*data.dds)
 	out = numpy.zeros_like(data[field]*dxi[0])
 	left = [all]*3
 	right = [all]*3
@@ -23,7 +22,7 @@ def vecdotdelscalar(data, vecfield, scalfield):
 	sliceL = slice(None,-2)
 	all = slice(1,-1)
 	all_all = tuple([all]*3)
-	dxi = 1./(2*data.ds.dds)
+	dxi = 1./(2*data.dds)
 	out = numpy.zeros_like(data[scalfield]*data[vecfield[0]]*dxi[0])
 	temp = numpy.zeros_like(data[scalfield])
 	for i, fi in enumerate(vecfield):
