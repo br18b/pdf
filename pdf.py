@@ -1,6 +1,8 @@
 import yt, numpy, os
 import load_operators
 from load import load_params
+from yt.funcs import mylog
+mylog.setLevel(50)
 
 def bin_size(bins):
 	return bins[1:]-bins[:-1]
@@ -8,14 +10,13 @@ def bin_size(bins):
 def bin_center(bins):
 	return 0.5*(bins[1:]+bins[:-1])
 
-path, filenames, frames, tasks, scales = load_params("input.txt")
+path, filenames, frames, tasks, scales, dxs = load_params("input.txt")
 
 if not os.path.exists('%s/pdf'%path):
 	os.makedirs('%s/pdf'%path)
 
 taskdictstr = {"vx": "x-velocity", "vy": "y-velocity", "vz": "z-velocity",
-"drhodx": "drhodx", "drhody": "drhody","drhodz": "drhodz",
-"|gradrho|": "absgradrho", "vdotgradrho": "vdotgradrho"}
+"|gradrho|": "absgradrho"}
 
 for frame in frames:
 	print("loading %s/%s%04d/%s%04d ..."%(path,filenames[0],frame,filenames[1],frame))
@@ -25,13 +26,17 @@ for frame in frames:
 	for i in range(len(tasks)):
 		task = tasks[i]
 		scale = scales[i]
-		field_name = taskdictstr[task]
+		dx = dxs[i]
+		if task in taskdictstr:
+			field_name = taskdictstr[task]
+		else:
+			field_name = task
 
 		minval = region[field_name].min().v
 		maxval = region[field_name].max().v
 		print("field: %s, min: %f, max: %f"%(field_name, minval, maxval))
 		if scale == "lin":
-			N = max(int((maxval-minval)/0.1), 1)
+			N = max(int((maxval-minval)/dx), 1)
 			field_bins = numpy.linspace(minval, maxval, N)
 		elif scale == "log":
 			N = 1000
