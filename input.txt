@@ -3,3 +3,4 @@
 -r	100 500
 -t	|gradrho| log
 	vdotgradrho symlog
+	divv lin 1
