@@ -36,8 +36,15 @@ for frame in frames:
 		elif scale == "log":
 			N = 1000
 			field_bins = numpy.logspace(numpy.log10(0.8*minval), numpy.log10(1.2*maxval), N)
+		elif scale == "symlog":
+			N = 1000
+			field_bins = numpy.logspace(-5, numpy.log10(1.2*max(abs(minval), abs(maxval))), N)
+			field_bins = (-field_bins)[::-1] + field_bins
 		bins = {field_name: field_bins}
 		profile = yt.create_profile(region, bin_fields = [field_name], fields = ['cell_volume'], weight_field = None, fractional = True, override_bins = bins)
 		P = numpy.column_stack((bin_center(field_bins),profile['cell_volume']/bin_size(field_bins)))
+		norm = sum(0.5*(P[i + 1][1] + P[i][1])*(P[i + 1][0] - P[i][0]) for i in range(len(P) - 1))
+		print("correcting norm: %f"%norm)
+		P = [[P[i][0], P[i][1]/norm] for i in range(len(P)) if P[i][1] > 1e-10 or (i == 0 or i == len(P) - 1)]
 		print('saving pdf to %s/pdf/%04d_%s.txt'%(path, frame, field_name))
 		numpy.savetxt('%s/pdf/%04d_%s.txt'%(path, frame, field_name), P)
