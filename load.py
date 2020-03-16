@@ -1,28 +1,44 @@
+fields = {"vx", "vy", "vz", "rho", "Density", "density", "drhodx", "drhody", "drhodz",
+"|gradrho|", "vdotgradrho", "vdotgradrhoangle"}
+
 def load_params(input_filename):
 	input = open("input.txt", "r")
 	lines = input.readlines()
 	path = "~/"
 	filenames = ["DD","DD"]
 	frames = range(0,100)
-	tasks = ["vx","vy","vz"]
+	tasks = []
+	scales = []
 	for line in lines:
 		tokens = line.split()
-		if tokens[0] == "path" or tokens[0] == "-p":
-			path = tokens[1]
+		token0 = tokens[0]
+		if token0 in fields:
+			token0 = "-t"
+			print("!!!")
+		else:
+			token0 = tokens[0]
+			tokens = tokens[1:]
+		if token0 == "path" or token0 == "-p":
+			path = tokens[0]
 			if path[-1] == "/":
 				path = path[:-1]
-		elif tokens[0] == "filenames" or tokens[0] == "-f":
-			filenames[0] = tokens[1]
-			filenames[1] = tokens[2]
-		elif tokens[0] == "range" or tokens[0] == "-r":
-			start = int(tokens[1])
-			end = int(tokens[2])+1
+		elif token0 == "filenames" or token0 == "-f":
+			filenames[0] = tokens[0]
+			filenames[1] = tokens[1]
+		elif token0 == "range" or token0 == "-r":
+			start = int(tokens[0])
+			end = int(tokens[1])+1
 			skip = 1
-			if len(tokens) > 3:
-				skip = int(tokens[3])
+			if len(tokens) > 2:
+				skip = int(tokens[2])
 			frames = range(start, end, skip)
-		elif tokens[0] == "tasks" or tokens[0] == "-t":
-			tasks = tokens[1:]
+		elif token0 == "tasks" or token0 == "-t":
+			tasks.append(tokens[0])
+			if len(tokens) > 1:
+				scales.append(tokens[1])
+			else:
+				scales.append("lin")
+		last_token = token0
 	input.close()
 	print("path: %s"%(path))
 	print("data file names: %sXXXX/%sXXXX"%(filenames[0],filenames[1]))
@@ -35,6 +51,9 @@ def load_params(input_filename):
 	filenames[0], frames[0], filenames[1], frames[0],
 	filenames[0], frames[-1], filenames[1], frames[-1]))
 	print("tasks:\n")
-	for task in tasks:
-		print(task)
-	return path, filenames, frames, tasks
+	for i in range(len(tasks)):
+		if scales[i] == "lin":
+			print("field: %s, in linear scale"%tasks[i])
+		elif scales[i] == "log":
+			print("field: %s, in logarithmic scale"%tasks[i])
+	return path, filenames, frames, tasks, scales

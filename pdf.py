@@ -1,5 +1,5 @@
 import yt, numpy, os
-import operators
+import load_operators
 from load import load_params
 
 def bin_size(bins):
@@ -8,47 +8,34 @@ def bin_size(bins):
 def bin_center(bins):
 	return 0.5*(bins[1:]+bins[:-1])
 
-path, filenames, frames, tasks = load_params("input.txt")
+path, filenames, frames, tasks, scales = load_params("input.txt")
 
 if not os.path.exists('%s/pdf'%path):
 	os.makedirs('%s/pdf'%path)
 
-def drhodx(field, data):
-	return operators.d(data, 'Density', 0)
-
-def drhody(field, data):
-	return operators.d(data, 'Density', 1)
-
-def drhodz(field, data):
-	return operators.d(data, 'Density', 2)
-
-def absgradrho(field, data):
-	return (data['drhodx']**2 + data['drhody']**2 + data['drhodz']**2)**0.5
-
-density_validators = [yt.ValidateSpatial(1,['density'])]
-
-taskdictstr = {"vx": "x-velocity", "vy": "y-velocity", "vz": "z-velocity", "drhodx": "drhodx", "drhody": "drhody","drhodz": "drhodz","|gradrho|": "absgradrho"}
-taskdictfun = {"drhodx": drhodx, "drhody": drhody, "drhodz": drhodz, "|gradrho|": absgradrho}
-taskdictuni = {"drhodx": "code_mass/code_length**4", "drhody": "code_mass/code_length**4", "drhodz": "code_mass/code_length**4", "|gradrho|": "code_mass/code_length**4"}
-taskdictval = {"drhodx": density_validators, "drhody": density_validators, "drhodz": density_validators, "|gradrho|": [yt.ValidateGridType()]}
+taskdictstr = {"vx": "x-velocity", "vy": "y-velocity", "vz": "z-velocity",
+"drhodx": "drhodx", "drhody": "drhody","drhodz": "drhodz",
+"|gradrho|": "absgradrho", "vdotgradrho": "vdotgradrho"}
 
 for frame in frames:
 	print("loading %s/%s%04d/%s%04d ..."%(path,filenames[0],frame,filenames[1],frame))
 	ds = yt.load('%s/%s%04d/%s%04d'%(path,filenames[0],frame,filenames[1],frame))
-	for task in tasks:
+	load_operators.load(ds, tasks)
+	region = ds.all_data()
+	for i in range(len(tasks)):
+		task = tasks[i]
+		scale = scales[i]
 		field_name = taskdictstr[task]
-		if task in taskdictfun.keys():
-			field_function = taskdictfun[task]; field_units = taskdictuni[task]; field_validators = taskdictval[task]
-			print("adding field %s, units: %s"%(field_name, field_units))
-			ds.add_field(field_name, field_function, take_log = False, validators = field_validators, sampling_type = 'cell', units=field_units)
-		else:
-			print("field %s exists"%field_name)
-		region = ds.all_data()
+
 		minval = region[field_name].min().v
 		maxval = region[field_name].max().v
-		N = max(int((maxval-minval)/0.1), 1)
 		print("field: %s, min: %f, max: %f"%(field_name, minval, maxval))
-		field_bins = numpy.linspace(minval, maxval, N)
+		if scale == "lin":
+			N = max(int((maxval-minval)/0.1), 1)
+			field_bins = numpy.linspace(minval, maxval, N)
+		elif scale == "log":
+			N = 1000
+			field_bins = numpy.logspace(numpy.log10(0.8*minval), numpy.log10(1.2*maxval), N)
 		bins = {field_name: field_bins}
 		profile = yt.create_profile(region, bin_fields = [field_name], fields = ['cell_volume'], weight_field = None, fractional = True, override_bins = bins)
 		P = numpy.column_stack((bin_center(field_bins),profile['cell_volume']/bin_size(field_bins)))

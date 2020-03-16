@@ -1,4 +1,5 @@
 -p	/mnt/d/scratch/projects/fiducial_128_mach_3_0
 -f	DD data
--r	100 100
--t	vx vy vz drhodx drhody drhodz |gradrho|
+-r	100 500
+-t	|gradrho| log
+	vdotgradrho
