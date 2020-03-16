@@ -86,42 +86,54 @@ def load(ds, tasks):
 		if needs_densitydx == False and task in density_dx_requirement_set:
 			ds.add_field("drhodx", drhodx, take_log = False, validators = density_validators, sampling_type = 'cell', units = drho_units)
 			print("field %s needs also field drho/dx, adding ..."%field_name)
+			needs_densitydx = True
 		if needs_densitydy == False and task in density_dy_requirement_set:
 			ds.add_field("drhody", drhodx, take_log = False, validators = density_validators, sampling_type = 'cell', units = drho_units)
 			print("field %s needs also field drho/dy, adding ..."%field_name)
+			needs_densitydy = True
 		if needs_densitydz == False and task in density_dy_requirement_set:
 			ds.add_field("drhodz", drhodx, take_log = False, validators = density_validators, sampling_type = 'cell', units = drho_units)
 			print("field %s needs also field drho/dz, adding ..."%field_name)
+			needs_densitydz = True
 
 		if needs_dvxdx == False and task in dvxdx_requirement_set:
 			ds.add_field("dvxdx", dvxdx, take_log = False, validators = vx_validators, sampling_type = 'cell', units = dv_units)
 			print("field %s needs also field dvx/dx, adding ..."%field_name)
+			needs_dvxdx = True
 		if needs_dvxdy == False and task in dvxdy_requirement_set:
 			ds.add_field("dvxdy", dvxdy, take_log = False, validators = vx_validators, sampling_type = 'cell', units = dv_units)
 			print("field %s needs also field dvx/dy, adding ..."%field_name)
+			needs_dvxdy = True
 		if needs_dvxdz == False and task in dvxdz_requirement_set:
 			ds.add_field("dvxdz", dvxdz, take_log = False, validators = vx_validators, sampling_type = 'cell', units = dv_units)
 			print("field %s needs also field dvx/dz, adding ..."%field_name)
+			needs_dvxdz = True
 
 		if needs_dvydx == False and task in dvydx_requirement_set:
 			ds.add_field("dvydx", dvydx, take_log = False, validators = vy_validators, sampling_type = 'cell', units = dv_units)
 			print("field %s needs also field dvy/dx, adding ..."%field_name)
+			needs_dvydx = True
 		if needs_dvydy == False and task in dvydy_requirement_set:
 			ds.add_field("dvydy", dvydy, take_log = False, validators = vy_validators, sampling_type = 'cell', units = dv_units)
 			print("field %s needs also field dvy/dy, adding ..."%field_name)
+			needs_dvydy = True
 		if needs_dvydz == False and task in dvydz_requirement_set:
 			ds.add_field("dvydz", dvydz, take_log = False, validators = vy_validators, sampling_type = 'cell', units = dv_units)
 			print("field %s needs also field dvy/dz, adding ..."%field_name)
+			needs_dvydz = True
 
 		if needs_dvzdx == False and task in dvzdx_requirement_set:
 			ds.add_field("dvzdx", dvzdx, take_log = False, validators = vz_validators, sampling_type = 'cell', units = dv_units)
 			print("field %s needs also field dvz/dx, adding ..."%field_name)
+			needs_dvzdx = True
 		if needs_dvzdy == False and task in dvzdy_requirement_set:
 			ds.add_field("dvzdy", dvzdy, take_log = False, validators = vz_validators, sampling_type = 'cell', units = dv_units)
 			print("field %s needs also field dvz/dy, adding ..."%field_name)
+			needs_dvzdy = True
 		if needs_dvzdz == False and task in dvzdz_requirement_set:
 			ds.add_field("dvzdz", dvzdz, take_log = False, validators = vz_validators, sampling_type = 'cell', units = dv_units)
 			print("field %s needs also field dvz/dz, adding ..."%field_name)
+			needs_dvzdz = True
 
 		if task in taskdictfun:
 			field_function = taskdictfun[task]; field_units = taskdictuni[task]; field_validators = taskdictval[task]
