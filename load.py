@@ -1,5 +1,5 @@
 fields = {"vx", "vy", "vz", "rho", "Density", "density", "drhodx", "drhody", "drhodz",
-"|gradrho|", "vdotgradrho", "vdotgradrhoangle"}
+"|gradrho|", "vdotgradrho", "vdotgradrhoangle", "divv"}
 
 def load_params(input_filename):
 	input = open("input.txt", "r")
@@ -9,12 +9,12 @@ def load_params(input_filename):
 	frames = range(0,100)
 	tasks = []
 	scales = []
+	dxs = []
 	for line in lines:
 		tokens = line.split()
 		token0 = tokens[0]
 		if token0 in fields:
 			token0 = "-t"
-			print("!!!")
 		else:
 			token0 = tokens[0]
 			tokens = tokens[1:]
@@ -34,10 +34,15 @@ def load_params(input_filename):
 			frames = range(start, end, skip)
 		elif token0 == "tasks" or token0 == "-t":
 			tasks.append(tokens[0])
-			if len(tokens) > 1:
-				scales.append(tokens[1])
-			else:
+			if len(tokens) == 1:
 				scales.append("lin")
+				dxs.append(0.1)
+			elif len(tokens) == 2:
+				scales.append(tokens[1])
+				dxs.append(0.1)
+			elif len(tokens) == 3:
+				scales.append(tokens[1])
+				dxs.append(float(tokens[2]))
 		last_token = token0
 	input.close()
 	print("path: %s"%(path))
@@ -58,4 +63,4 @@ def load_params(input_filename):
 			print("field: %s, in logarithmic scale"%tasks[i])
 		elif scales[i] == "symlog":
 			print("field: %s, in symmetric logarithmic scale"%tasks[i])
-	return path, filenames, frames, tasks, scales
+	return path, filenames, frames, tasks, scales, dxs
