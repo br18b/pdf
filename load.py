@@ -56,4 +56,6 @@ def load_params(input_filename):
 			print("field: %s, in linear scale"%tasks[i])
 		elif scales[i] == "log":
 			print("field: %s, in logarithmic scale"%tasks[i])
+		elif scales[i] == "symlog":
+			print("field: %s, in symmetric logarithmic scale"%tasks[i])
 	return path, filenames, frames, tasks, scales
