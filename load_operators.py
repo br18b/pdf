@@ -21,11 +21,11 @@ def dvydy(field, data):
 def dvydz(field, data):
 	return operators.d(data, 'y-velocity', 2)
 
-def dvydx(field, data):
+def dvzdx(field, data):
 	return operators.d(data, 'z-velocity', 0)
-def dvydy(field, data):
+def dvzdy(field, data):
 	return operators.d(data, 'z-velocity', 1)
-def dvydz(field, data):
+def dvzdz(field, data):
 	return operators.d(data, 'z-velocity', 2)
 
 def absgradrho(field, data):
@@ -33,6 +33,9 @@ def absgradrho(field, data):
 
 def vdotgradrho(field, data):
 	return data['x-velocity']*data['drhodx'] + data['y-velocity']*data['drhody'] + data['z-velocity']*data['drhodz']
+
+def divv(field, data):
+	return data['dvxdx'] + data['dvydy'] + data['dvzdz']
 
 density_validators = [yt.ValidateSpatial(1,['density'])]
 
@@ -60,12 +63,13 @@ drho_units = "code_mass/code_length**4"
 
 dv_units = "1/code_time"
 
-taskdictfun = {"|gradrho|": absgradrho, "absgradrho": absgradrho, "vdotgradrho": vdotgradrho}
+taskdictfun = {"|gradrho|": absgradrho, "absgradrho": absgradrho, "vdotgradrho": vdotgradrho, "divv": divv}
 taskdictstr = {"vx": "x-velocity", "vy": "y-velocity", "vz": "z-velocity",
 "drhodx": "drhodx", "drhody": "drhody","drhodz": "drhodz",
-"|gradrho|": "absgradrho", "vdotgradrho": "vdotgradrho"}
-taskdictuni = {"|gradrho|": "code_mass/code_length**4", "vdotgradrho": "code_mass/(code_length**3*code_time)"}
-taskdictval = {"|gradrho|": [yt.ValidateGridType()], "vdotgradrho": [yt.ValidateGridType()]}
+"|gradrho|": "absgradrho", "vdotgradrho": "vdotgradrho", "divv": "divv"}
+taskdictuni = {"|gradrho|": "code_mass/code_length**4", "vdotgradrho": "code_mass/(code_length**3*code_time)",
+"divv": "1/code_time"}
+#taskdictval = {"|gradrho|": [yt.ValidateGridType()], "vdotgradrho": [yt.ValidateGridType()]}
 
 
 def load(ds, tasks):
@@ -136,8 +140,8 @@ def load(ds, tasks):
 			needs_dvzdz = True
 
 		if task in taskdictfun:
-			field_function = taskdictfun[task]; field_units = taskdictuni[task]; field_validators = taskdictval[task]
+			field_function = taskdictfun[task]; field_units = taskdictuni[task]
 			print("adding field %s, units: %s"%(field_name, field_units))
-			ds.add_field(field_name, field_function, take_log = False, validators = field_validators, sampling_type = 'cell', units=field_units)
+			ds.add_field(field_name, field_function, take_log = False, validators = [yt.ValidateGridType()], sampling_type = 'cell', units=field_units)
 		else:
 			print("field %s exists"%field_name)
