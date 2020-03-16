@@ -2,4 +2,4 @@
 -f	DD data
 -r	100 500
 -t	|gradrho| log
-	vdotgradrho
+	vdotgradrho symlog
