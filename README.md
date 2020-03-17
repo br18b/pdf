@@ -23,8 +23,11 @@ DD0006/DD0006
 etc.
 
 -t	vx
+
 	vy
+
 	vz
+
 	...
 
 What fields to take distributions of. -t doesn't need to be repeated
