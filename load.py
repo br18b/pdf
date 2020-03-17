@@ -1,5 +1,17 @@
-fields = {"vx", "vy", "vz", "rho", "Density", "density", "drhodx", "drhody", "drhodz",
-"|gradrho|", "vdotgradrho", "vdotgradrhoangle", "divv"}
+fields = {"vx": "x-velocity", "vy": "y-velocity", "vz": "z-velocity", "x-velocity": "x-velocity",
+"y-velocity": "y-velocity", "z-velocity": "z-velocity", "rho": "Density",
+"Density": "Density", "density": "Density", "drhodx": "drhodx", "drhody": "drhody",
+"drhodz": "drhodz", "|gradrho|": "absgradrho", "absgradrho": "absgradrho", "vdotgradrho": "vdotgradrho",
+"v.gradrho": "vdotgradrho", "v.gradrhoangle": "vdotgradrhoangle", "vdotgradrhocos": "vdotgradrhocos",
+"v.gradrhocos": "vdotgradrhocos",
+"vdotgradrhoangle": "vdotgradrhoangle", "divv": "divv", "div.v": "divv", "vdotgradvx": "vdotgradvx",
+"v.gradvx": "vdotgradvx", "v.grad vx": "vdotgradvx", "vdotgradvy": "vdotgradvy",
+"v.gradvy": "vdotgradvy", "v.grad vy": "vdotgradvy", "vdotgradvz": "vdotgradvz",
+"v.gradvz": "vdotgradvz", "v.grad vz": "vdotgradvz", "vdotvdotgradv": "vdotvdotgradv",
+"v.grad.v.grad.v": "vdotgradvdotgradv", "v.(v.gradv)": "vdotgradvdotgradv",
+"rhodivv": "rhodivv", "rhodiv.v": "rhodivv", "absvdotgradv": "absvdotgradv",
+ "vdotvdotgradvcos": "vdotvdotgradvcos", "|vdotgradv|": "absvdotgradv",
+"|v.gradv|": "absvdotgradv", "vdotvdotgradvangle": "vdotvdotgradvangle"}
 
 def load_params(input_filename):
 	input = open("input.txt", "r")
@@ -33,7 +45,7 @@ def load_params(input_filename):
 				skip = int(tokens[2])
 			frames = range(start, end, skip)
 		elif token0 == "tasks" or token0 == "-t":
-			tasks.append(tokens[0])
+			tasks.append(fields[tokens[0]])
 			if len(tokens) == 1:
 				scales.append("lin")
 				dxs.append(0.1)
