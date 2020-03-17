@@ -1,6 +1,14 @@
--p	/mnt/d/scratch/projects/fiducial_128_mach_3_0
+-p	/mnt/d/scratch/projects/fiducial_128_mach_5_0
 -f	DD data
--r	100 500
+-r	124 170
 -t	|gradrho| log
-	vdotgradrho symlog
+	v.gradrho symlog 10
 	divv lin 1
+	vdotgradrhoangle lin 0.01
+	vdotgradvx lin 5
+	vdotgradvy lin 5
+	vdotgradvz lin 5
+	vdotvdotgradv symlog 100
+	rhodivv lin 5
+	vdotvdotgradvangle lin 0.01
+	|v.gradv| symlog
