@@ -1,14 +1,25 @@
--p	/mnt/d/scratch/projects/fiducial_128_mach_5_0
+-p	
 -f	DD data
--r	124 170
--t	|gradrho| log
-	v.gradrho symlog 10
-	divv lin 1
-	vdotgradrhoangle lin 0.01
-	vdotgradvx lin 5
-	vdotgradvy lin 5
-	vdotgradvz lin 5
-	vdotvdotgradv symlog 100
-	rhodivv lin 5
-	vdotvdotgradvangle lin 0.01
-	|v.gradv| symlog
+-r	1 50
+//-v
+-t	rho log auto auto 10000
+//	vx
+//	vy
+//	vz
+//	absv
+	Ek lin auto 10 10000 log 10 auto 10000
+	Ep lin -0.367879 0 1000 log 0 auto 10000
+//	|gradrho|
+//	v.gradrho
+//	divv
+//	vdotgradrhoangle
+//	vdotgradvx
+//	vdotgradvy
+//	vdotgradvz
+//	vdotvdotgradv
+//	rhodivv
+//	vdotvdotgradvangle
+//	|v.gradv|
+//	drhodx
+//	drhody
+//	drhodz

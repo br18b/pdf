@@ -74,52 +74,22 @@ def vdotvdotgradvangle(field, data):
 	out[:] = numpy.arccos(data['vdotvdotgradvcos'])
 	return out
 
-density_validators = [yt.ValidateSpatial(1,['density'])]
+def logrho(field, data):
+	rho0 = data.ds.quan(1., 'code_mass/code_length**3')
+	out = numpy.zeros_like(data['Density']/rho0)
+	rho = data['Density']/rho0
+	out[:] = numpy.log(rho[:])
+	return out
 
-vx_validators = [yt.ValidateSpatial(1,['x-velocity'])]
-vy_validators = [yt.ValidateSpatial(1,['y-velocity'])]
-vz_validators = [yt.ValidateSpatial(1,['z-velocity'])]
+def rhologrho(field, data):
+	return data['Density']*data['logrho']
 
-drho_units = "code_mass/code_length**4"
+def cs2rhologrho(field, data):
+	cs2 = data.ds.quan(1., 'code_velocity**2')
+	return cs2*data['rhologrho']
 
-dv_units = "1/code_time"
-
-a_units = "code_length/code_time**2"
-
-possible_fields = ["drhodx", "drhody", "drhodz", "absv", "dvxdx", "dvxdy", "dvxdz",
-"dvydx", "dvydy", "dvydz", "dvzdx", "dvzdy", "dvzdz", "divv", "absgradrho", "vdotgradrho",
-"vdotgradrhocos", "vdotgradrhoangle", "vdotgradvx", "vdotgradvy", "vdotgradvz", "vdotvdotgradv",
-"rhodivv", "absvdotgradv", "vdotvdotgradvcos", "vdotvdotgradvangle"]
-
-field_functions = [drhodx, drhody, drhodz, absv, dvxdx, dvxdy, dvxdz,
-dvydx, dvydy, dvydz, dvzdx, dvzdy, dvzdz, divv, absgradrho, vdotgradrho,
-vdotgradrhocos, vdotgradrhoangle, vdotgradvx, vdotgradvy, vdotgradvz,
-vdotvdotgradv, rhodivv, absvdotgradv, vdotvdotgradvcos, vdotvdotgradvangle]
-
-bools = [False]*len(possible_fields)
-
-dependencies = {
-"divv": {"dvxdx", "dvydy", "dvzdz"},
-"absgradrho": {"drhodx", "drhody", "drhodz"},
-"vdotgradrho": {"drhodx", "drhody", "drhodz"},
-"vdotgradrhocos": {"vdotgradrho", "absv", "absgradrho"},
-"vdotgradrhoangle": {"vdotgradrhocos"},
-"vdotgradvx": {"dvxdx", "dvxdy", "dvxdz"},
-"vdotgradvy": {"dvydx", "dvydy", "dvydz"},
-"vdotgradvz": {"dvzdx", "dvzdy", "dvzdz"},
-"vdotvdotgradv": {"vdotgradvx", "vdotgradvy", "vdotgradvz"},
-"rhodivv": {"divv"},
-"absvdotgradv": {"vdotgradvx", "vdotgradvy", "vdotgradvz"},
-"vdotvdotgradvcos": {"vdotvdotgradv", "absv", "absvdotgradv"},
-"vdotvdotgradvangle": {"vdotvdotgradvcos"}
-}
-
-is_added = {}
-task_to_field = {}
-
-for i in range(len(possible_fields)):
-	is_added[possible_fields[i]] = bools[i]
-	task_to_field[possible_fields[i]] = field_functions[i]
+def ek(field, data):
+	return 0.5*data['Density']*data['absv']**2
 
 default_validators = [yt.ValidateGridType()]
 density_validators = [yt.ValidateSpatial(1,['density'])]
@@ -127,42 +97,113 @@ vx_validators = [yt.ValidateSpatial(1,['x-velocity'])]
 vy_validators = [yt.ValidateSpatial(1,['y-velocity'])]
 vz_validators = [yt.ValidateSpatial(1,['z-velocity'])]
 
-validators = {"drhodx": density_validators, "drhody": density_validators, "drhodz": density_validators,
-"dvxdx": vx_validators, "dvxdy": vx_validators, "dvxdz": vx_validators,
-"dvydx": vy_validators, "dvydy": vy_validators, "dvydz": vy_validators,
-"dvzdx": vz_validators, "dvzdy": vz_validators, "dvzdz": vz_validators,
-"divv": default_validators, "vdotgradvx": default_validators, "vdotgradvy": default_validators,
-"vdotgradvz": default_validators, "vdotvdotgradv": default_validators,
-"absv": default_validators, "absgradrho": default_validators, "vdotgradrho": default_validators,
-"vdotgradrhocos": default_validators, "vdotgradrhoangle": default_validators, "rhodivv": default_validators,
-"rhodivv": default_validators, "absvdotgradv": default_validators,
-"vdotvdotgradvcos": default_validators, "vdotvdotgradvangle": default_validators}
+drho_units = "code_mass/code_length**4"
+dv_units = "1/code_time"
+a_units = "code_length/code_time**2"
 
-units = {"drhodx": drho_units, "drhody": drho_units, "drhodz": drho_units,
-"dvxdx": dv_units, "dvxdy": dv_units, "dvxdz": dv_units,
-"dvydx": dv_units,"dvydy": dv_units,"dvydz": dv_units,
-"dvzdx": dv_units,"dvzdy": dv_units,"dvzdz": dv_units,
-"absv": "code_length/code_time", "divv": dv_units,
-"absgradrho": drho_units, "vdotgradrho": "code_mass/(code_length**3*code_time)",
-"divv": dv_units, "vdotgradvx": a_units, "vdotgradvy": a_units, "vdotgradvz": a_units,
-"vdotgradrhocos": "dimensionless", "vdotgradrhoangle": "dimensionless",
-"vdotvdotgradv": "code_length**2/code_time**3", "rhodivv": "code_mass/(code_length**3*code_time)",
-"rhodivv": "code_mass/(code_length**3*code_time)", "absvdotgradv": a_units,
-"vdotvdotgradvcos": "dimensionless", "vdotvdotgradvangle": "dimensionless"}
+fields = {
+"drhodx": [drhodx, density_validators, drho_units, {}],
+"drhody": [drhody, density_validators, drho_units, {}],
+"drhodz": [drhodz, density_validators, drho_units, {}],
+"absv": [absv, "code_length/code_time", {}],
+"dvxdx": [dvxdx, vx_validators, dv_units, {}],
+"dvxdy": [dvxdy, vx_validators, dv_units, {}],
+"dvxdz": [dvxdz, vx_validators, dv_units, {}],
+"dvydx": [dvydx, vy_validators, dv_units, {}],
+"dvydy": [dvydy, vy_validators, dv_units, {}],
+"dvydz": [dvydz, vy_validators, dv_units, {}],
+"dvzdx": [dvzdx, vz_validators, dv_units, {}],
+"dvzdy": [dvzdy, vz_validators, dv_units, {}],
+"dvzdz": [dvzdz, vz_validators, dv_units, {}],
+"divv": [divv, dv_units, {"dvxdx", "dvydy", "dvzdz"}],
+"absgradrho": [absgradrho, drho_units, {"drhodx", "drhody,", "drhodz"}],
+"vdotgradrho": [vdotgradrho, "code_mass/(code_length**3*code_time)", {"drhodx", "drhody", "drhodz"}],
+"vdotgradrhocos": [vdotgradrhocos, "dimensionless", {"vdotgradrho", "absv", "absgradrho"}],
+"vdotgradrhoangle": [vdotgradrhoangle, "dimensionless", {"vdotgradrhocos"}],
+"vdotgradvx": [vdotgradvx, a_units, {"dvxdx", "dvxdy", "dvxdz"}],
+"vdotgradvy": [vdotgradvy, a_units, {"dvydx", "dvydy", "dvydz"}],
+"vdotgradvz": [vdotgradvz, a_units, {"dvzdx", "dvzdy", "dvzdz"}],
+"vdotvdotgradv": [vdotvdotgradv, "code_length**2/code_time**3", {"vdotgradvx", "vdotgradvy", "vdotgradvz"}],
+"rhodivv": [rhodivv, "code_mass/(code_length**3*code_time)", {"divv"}],
+"absvdotgradv": [absvdotgradv, a_units, {"vdotgradvx", "vdotgradvy", "vdotgradvz"}],
+"vdotvdotgradvcos": [vdotvdotgradvcos, default_validators, "dimensionless", {"vdotvdotgradv", "absv", "absvdotgradv"}],
+"vdotvdotgradvangle": [vdotvdotgradvangle, default_validators, "dimensionless", {"vdotvdotgradvcos"}],
+"logrho": [logrho, default_validators, "dimensionless", {}],
+"rhologrho": [rhologrho, default_validators, "code_mass/code_length**3", {"logrho"}],
+"cs2rhologrho": [cs2rhologrho, default_validators, "code_mass/(code_length*code_time**2)", {"rhologrho"}],
+"ek": [ek, default_validators, "code_mass/(code_length*code_time**2)", {"absv"}]
+}
 
-def add_fields(ds, task):
-	if dependencies.get(task) != None:
-		for field in dependencies[task]:
-			add_fields(ds, field)
-		ds.add_field(task, task_to_field[task], take_log = False, validators = validators[task], sampling_type = 'cell', units = units[task])
+bools = [False]*len(fields)
+
+i = 0
+for task in fields:
+	fields[task].append(bools[i])
+	i += 1
+
+def reset_fields(verbose):
+	if verbose:
+		print("resetting fields")
+		i = 0
+		for key in fields:
+			if fields[key][-1] == True:
+				fields[key][-1] = False
+				print("field %s was reset"%key)
+				i += 1
+		print("total %d fields were reset"%i)
 	else:
-		if is_added.get(task) == False:
-			ds.add_field(task, task_to_field[task], take_log = False, validators = validators[task], sampling_type = 'cell', units = units[task])
+		for key in fields:
+			fields[key][-1] = False
 
-def load(ds, tasks):
+def add_field(ds, task, verbose):
+	fun = fields[task][0]
+	vals = default_validators
+	units = fields[task][-3]
+	if len(fields[task]) == 5:
+		vals = fields[task][1]
+	if verbose:
+		print("add_field: adding %s"%task)
+		print("\tfunction:",fun)
+		print("\tvalidators:", vals)
+		print("\tunits: %s"%units)
+	ds.add_field(task, fun, take_log = False, validators = vals, sampling_type = 'cell', units = units)
+
+def dependencies(task):
+	if fields.get(task) == None:
+		return {}
+	return fields[task][-2]
+
+def add_fields(ds, task, verbose):
+	if verbose:
+		print("add_fields: %s"%task)
+	dep = dependencies(task)
+	if dep != {}:
+		if verbose:
+			print("add_fields, %s has dependencies:"%task)
+			print(dep)
+		for field in dep:
+			add_fields(ds, field, verbose)
+		add_field(ds, task, verbose)
+	else:
+		if verbose:
+			print("add_fields, %s does not have dependencies"%task)
+		if fields[task][-1] == False:
+			add_field(ds, task, verbose)
+			fields[task][-1] = True
+
+def load(ds, tasks, verbose):
 	for task in tasks:
-		if dependencies.get(task) == None:
-			if task_to_field.get(task) != None and is_added.get(task) == False:
-				ds.add_field(task, task_to_field[task], take_log = False, validators = validators[task], sampling_type = 'cell', units = units[task])
+		if verbose:
+			print("load: %s"%task)
+		if fields.get(task) != None:
+			if verbose:
+				print("load: %s needs to be added"%task)
+			dep = dependencies(task)
+			if dep == {}:
+				if fields[task][4] == False:
+					add_field(ds, task, verbose)
+			else:
+				add_fields(ds, task, verbose)
 		else:
-			add_fields(ds, task)
+			if verbose:
+				print("load: %s is one of the computed fields"%task)

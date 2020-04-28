@@ -1,5 +1,9 @@
 fields = {"vx": "x-velocity", "vy": "y-velocity", "vz": "z-velocity", "x-velocity": "x-velocity",
-"y-velocity": "y-velocity", "z-velocity": "z-velocity", "rho": "Density",
+"y-velocity": "y-velocity", "z-velocity": "z-velocity",
+"dvxdx": "dvxdx", "dvxdy": "dvxdy", "dvxdz": "dvxdz",
+"dvydx": "dvydx", "dvydy": "dvydy", "dvydz": "dvydz",
+"dvzdx": "dvzdx", "dvzdy": "dvzdy", "dvzdz": "dvzdz",
+"rho": "Density", "absv": "absv",
 "Density": "Density", "density": "Density", "drhodx": "drhodx", "drhody": "drhody",
 "drhodz": "drhodz", "|gradrho|": "absgradrho", "absgradrho": "absgradrho", "vdotgradrho": "vdotgradrho",
 "v.gradrho": "vdotgradrho", "v.gradrhoangle": "vdotgradrhoangle", "vdotgradrhocos": "vdotgradrhocos",
@@ -11,17 +15,19 @@ fields = {"vx": "x-velocity", "vy": "y-velocity", "vz": "z-velocity", "x-velocit
 "v.grad.v.grad.v": "vdotgradvdotgradv", "v.(v.gradv)": "vdotgradvdotgradv",
 "rhodivv": "rhodivv", "rhodiv.v": "rhodivv", "absvdotgradv": "absvdotgradv",
  "vdotvdotgradvcos": "vdotvdotgradvcos", "|vdotgradv|": "absvdotgradv",
-"|v.gradv|": "absvdotgradv", "vdotvdotgradvangle": "vdotvdotgradvangle"}
+"|v.gradv|": "absvdotgradv", "vdotvdotgradvangle": "vdotvdotgradvangle", "rhologrho": "rhologrho",
+"Ek": "ek", "ek": "ek",  "Ep": "cs2rhologrho", "ep": "cs2rhologrho"}
 
 def load_params(input_filename):
 	input = open("input.txt", "r")
 	lines = input.readlines()
-	path = "~/"
+	path = "."
 	filenames = ["DD","DD"]
 	frames = range(0,100)
 	tasks = []
 	scales = []
-	dxs = []
+	eos = "rhologrho"
+	verbose = False
 	for line in lines:
 		tokens = line.split()
 		token0 = tokens[0]
@@ -31,9 +37,10 @@ def load_params(input_filename):
 			token0 = tokens[0]
 			tokens = tokens[1:]
 		if token0 == "path" or token0 == "-p":
-			path = tokens[0]
-			if path[-1] == "/":
-				path = path[:-1]
+			if len(tokens) > 0:
+				path = tokens[0]
+				if path[-1] == "/":
+					path = path[:-1]
 		elif token0 == "filenames" or token0 == "-f":
 			filenames[0] = tokens[0]
 			filenames[1] = tokens[1]
@@ -44,17 +51,28 @@ def load_params(input_filename):
 			if len(tokens) > 2:
 				skip = int(tokens[2])
 			frames = range(start, end, skip)
+		elif token0 == "verbose" or token0 == "-v":
+			verbose = True
 		elif token0 == "tasks" or token0 == "-t":
 			tasks.append(fields[tokens[0]])
-			if len(tokens) == 1:
-				scales.append("lin")
-				dxs.append(0.1)
-			elif len(tokens) == 2:
-				scales.append(tokens[1])
-				dxs.append(0.1)
-			elif len(tokens) == 3:
-				scales.append(tokens[1])
-				dxs.append(float(tokens[2]))
+			tokens = tokens[1:]
+			scales.append([])
+			number_of_ranges = -(-len(tokens)//4)
+			print("tokens length: %d, number of ranges: %d"%(len(tokens), number_of_ranges))
+			for i in range(number_of_ranges):
+				if i < number_of_ranges-1:
+					scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], tokens[4*i+3]])
+				else:
+					if len(tokens) % 4 == 1:
+						scales[-1].append([tokens[4*i+1], "auto", "auto", 100])
+					elif len(tokens) % 4 == 2:
+						scales[-1].append([tokens[4*i+1], tokens[4*i+2], "auto", 100])
+					elif len(tokens) % 4 ==3:
+						scales[-1].append([tokens[4*i+1], tokens[4*i+2], tokens[4*i+3], 100])
+					elif len(tokens) % 4 == 0:
+						scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], tokens[4*i+3]])
+		elif token0 == "-eos":
+			eos = tokens[0]
 		last_token = token0
 	input.close()
 	print("path: %s"%(path))
@@ -75,4 +93,4 @@ def load_params(input_filename):
 			print("field: %s, in logarithmic scale"%tasks[i])
 		elif scales[i] == "symlog":
 			print("field: %s, in symmetric logarithmic scale"%tasks[i])
-	return path, filenames, frames, tasks, scales, dxs
+	return path, filenames, frames, tasks, scales, verbose
