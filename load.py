@@ -64,13 +64,15 @@ def load_params(input_filename):
 					scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], tokens[4*i+3]])
 				else:
 					if len(tokens) % 4 == 1:
-						scales[-1].append([tokens[4*i+1], "auto", "auto", 100])
+						scales[-1].append([tokens[4*i+1], "auto", "auto", 1000])
 					elif len(tokens) % 4 == 2:
-						scales[-1].append([tokens[4*i+1], tokens[4*i+2], "auto", 100])
+						scales[-1].append([tokens[4*i+1], tokens[4*i+2], "auto", 1000])
 					elif len(tokens) % 4 ==3:
-						scales[-1].append([tokens[4*i+1], tokens[4*i+2], tokens[4*i+3], 100])
+						scales[-1].append([tokens[4*i+1], tokens[4*i+2], tokens[4*i+3], 1000])
 					elif len(tokens) % 4 == 0:
 						scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], tokens[4*i+3]])
+			if len(tokens) == 0:
+				scales[-1].append(["lin", "auto", "auto", 1000])
 		elif token0 == "-eos":
 			eos = tokens[0]
 		last_token = token0

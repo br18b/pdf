@@ -1,14 +1,14 @@
 -p	
 -f	DD data
--r	1 50
-//-v
--t	rho log auto auto 10000
-//	vx
-//	vy
-//	vz
-//	absv
-	Ek lin auto 10 10000 log 10 auto 10000
-	Ep lin -0.367879 0 1000 log 0 auto 10000
+-r	1 171
+-v
+-t	rho lin auto auto 10000
+	vx
+	vy
+	vz
+	absv
+	Ek log auto auto 10000
+	Ep lin auto auto 10000
 //	|gradrho|
 //	v.gradrho
 //	divv

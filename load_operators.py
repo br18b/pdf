@@ -200,8 +200,9 @@ def load(ds, tasks, verbose):
 				print("load: %s needs to be added"%task)
 			dep = dependencies(task)
 			if dep == {}:
-				if fields[task][4] == False:
+				if fields[task][-1] == False:
 					add_field(ds, task, verbose)
+					fields[task][-1] = True
 			else:
 				add_fields(ds, task, verbose)
 		else:
