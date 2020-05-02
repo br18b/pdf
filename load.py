@@ -19,7 +19,7 @@ fields = {"vx": "x-velocity", "vy": "y-velocity", "vz": "z-velocity", "x-velocit
 "Ek": "ek", "ek": "ek",  "Ep": "cs2rhologrho", "ep": "cs2rhologrho"}
 
 def load_params(input_filename):
-	input = open("input.txt", "r")
+	input = open(input_filename, "r")
 	lines = input.readlines()
 	path = "."
 	filenames = ["DD","DD"]

@@ -1,7 +1,10 @@
+#! /usr/bin/env python
 import yt, numpy, os
 import load_operators
 from load import load_params
 from yt.funcs import mylog
+from optparse import OptionParser
+
 mylog.setLevel(50)
 
 def bin_size(bins):
