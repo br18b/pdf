@@ -22,7 +22,7 @@ def load_params(input_filename):
 	input = open(input_filename, "r")
 	lines = input.readlines()
 	path = "."
-	filenames = ["DD","DD"]
+	filenames = ["DD","data"]
 	frames = range(0,100)
 	tasks = []
 	scales = []
