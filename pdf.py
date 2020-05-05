@@ -3,7 +3,7 @@ import yt, numpy, os
 import load_operators
 from load import load_params
 from yt.funcs import mylog
-from optparse import OptionParser
+import sys
 
 mylog.setLevel(50)
 
@@ -13,7 +13,14 @@ def bin_size(bins):
 def bin_center(bins):
 	return 0.5*(bins[1:]+bins[:-1])
 
-path, filenames, frames, tasks, scales, verbose = load_params("input.txt")
+input_filename = sys.argv[-1]
+
+if(input_filename[-3:] == ".py"):
+	input_filename = "input.txt"
+
+print("loading from %s"%input_filename)
+
+path, filenames, frames, tasks, scales, verbose = load_params(input_filename)
 
 if not os.path.exists('%s/pdf'%path):
 	os.makedirs('%s/pdf'%path)
