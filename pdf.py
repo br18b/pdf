@@ -36,11 +36,21 @@ for frame in frames:
 		field_name = task
 		scale_desc = scales[i]
 		field_bins = numpy.zeros_like([])
+		make_projection = False
 		for j in range(len(scale_desc)):
 			scale = scale_desc[j][0]
+
+			if scale == "proj" or scale == "projection":
+				make_projection = True
+				axis = scale_desc[j][1]
+				min = scale_desc[j][2]
+				max = scale_desc[j][3]
+				break
+
 			scale_min = scale_desc[j][1]
 			scale_max = scale_desc[j][2]
 			N = int(scale_desc[j][3])
+
 			if scale_min == "auto":
 				minval = region[field_name].min().v
 			elif scale_min == "mid":
@@ -66,17 +76,27 @@ for frame in frames:
 			elif scale == "logL" or scale == "logl":
 				foo = 0.5*(maxval-minval+numpy.sqrt(4+(maxval - minval)**2))
 				field_bins = numpy.concatenate((field_bins, (numpy.full(N, maxval + 1.0/foo) - numpy.logspace(numpy.log10(1.0/foo), numpy.log10(foo), N))[::-1]))
-		field_bins = numpy.unique(field_bins)
-		if verbose:
-			print("field: %s, min: %f, max: %f, number of points: %d"%(field_name, field_bins[0], field_bins[-1], field_bins.size))
-		bins = {field_name: field_bins}
-		profile = yt.create_profile(region, bin_fields = [field_name], fields = ['cell_volume'], weight_field = None, fractional = True, override_bins = bins)
-		P = numpy.column_stack((bin_center(field_bins),profile['cell_volume']/bin_size(field_bins)))
-		#numpy.savetxt('%s/pdf/%04d_%s_bad_norm.txt'%(path, frame, field_name), P)
-		P = P[~numpy.isnan(P[:,1])]
-		norm = sum(0.5*(P[i + 1][1] + P[i][1])*(P[i + 1][0] - P[i][0]) for i in range(len(P) - 1))
-		if verbose:
-			print("correcting norm: %f"%norm)
-		P = [[P[i][0], P[i][1]/norm] for i in range(len(P)) if P[i][1] > 1e-10 or (i == 0 or i == len(P) - 1)]
-		print('saving pdf to %s/pdf/%04d_%s.txt'%(path, frame, field_name))
-		numpy.savetxt('%s/pdf/%04d_%s.txt'%(path, frame, field_name), P)
+		if make_projection:
+			proj = yt.ProjectionPlot(ds, axis, field_name)
+			if (min != "auto"):
+				if verbose:
+					print("creating projection of %s along %s-axis, in limits (%f, %f)"%(field_name, axis, min, max))
+				proj.set_zlim(field_name, min, max)
+			elif verbose:
+				print("creating projection of %s along %s-axis, in automatically set limits"%(field_name, axis))
+			proj.save('%s/pdf/%04d'%(path, frame))
+		else:
+			field_bins = numpy.unique(field_bins)
+			if verbose:
+				print("field: %s, min: %f, max: %f, number of points: %d"%(field_name, field_bins[0], field_bins[-1], field_bins.size))
+			bins = {field_name: field_bins}
+			profile = yt.create_profile(region, bin_fields = [field_name], fields = ['cell_volume'], weight_field = None, fractional = True, override_bins = bins)
+			P = numpy.column_stack((bin_center(field_bins),profile['cell_volume']/bin_size(field_bins)))
+			#numpy.savetxt('%s/pdf/%04d_%s_bad_norm.txt'%(path, frame, field_name), P)
+			P = P[~numpy.isnan(P[:,1])]
+			norm = sum(0.5*(P[i + 1][1] + P[i][1])*(P[i + 1][0] - P[i][0]) for i in range(len(P) - 1))
+			if verbose:
+				print("correcting norm: %f"%norm)
+			P = [[P[i][0], P[i][1]/norm] for i in range(len(P)) if P[i][1] > 1e-10 or (i == 0 or i == len(P) - 1)]
+			print('saving pdf to %s/pdf/%04d_%s.txt'%(path, frame, field_name))
+			numpy.savetxt('%s/pdf/%04d_%s.txt'%(path, frame, field_name), P)

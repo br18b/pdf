@@ -16,7 +16,8 @@ fields = {"vx": "x-velocity", "vy": "y-velocity", "vz": "z-velocity", "x-velocit
 "rhodivv": "rhodivv", "rhodiv.v": "rhodivv", "absvdotgradv": "absvdotgradv",
  "vdotvdotgradvcos": "vdotvdotgradvcos", "|vdotgradv|": "absvdotgradv",
 "|v.gradv|": "absvdotgradv", "vdotvdotgradvangle": "vdotvdotgradvangle", "rhologrho": "rhologrho",
-"Ek": "ek", "ek": "ek",  "Ep": "cs2rhologrho", "ep": "cs2rhologrho"}
+"EK": "ek", "Ek": "ek", "ek": "ek", "ET": "cs2rhologrho", "Et": "cs2rhologrho", "et": "cs2rhologrho",
+"cs2rhologrho": "cs2rhologrho"}
 
 def load_params(input_filename):
 	try:
@@ -64,14 +65,24 @@ def load_params(input_filename):
 						if i < number_of_ranges-1:
 							scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], tokens[4*i+3]])
 						else:
-							if len(tokens) % 4 == 1:
-								scales[-1].append([tokens[4*i+1], "auto", "auto", 1000])
-							elif len(tokens) % 4 == 2:
-								scales[-1].append([tokens[4*i+1], tokens[4*i+2], "auto", 1000])
-							elif len(tokens) % 4 ==3:
-								scales[-1].append([tokens[4*i+1], tokens[4*i+2], tokens[4*i+3], 1000])
-							elif len(tokens) % 4 == 0:
-								scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], tokens[4*i+3]])
+							if tokens[4*i] == "proj" or tokens[4*i] == "projection":
+								if len(tokens) % 4 == 1:
+									scales[-1].append([tokens[4*i], "z", "auto", "auto"])
+								elif len(tokens) % 4 == 2:
+									scales[-1].append([tokens[4*i], tokens[4*i+1], "auto", "auto"])
+								elif len(tokens) % 4 ==3:
+									scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], "auto"])
+								elif len(tokens) % 4 == 0:
+									scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], tokens[4*i+3]])
+							else:
+								if len(tokens) % 4 == 1:
+									scales[-1].append([tokens[4*i], "auto", "auto", 1000])
+								elif len(tokens) % 4 == 2:
+									scales[-1].append([tokens[4*i], tokens[4*i+1], "auto", 1000])
+								elif len(tokens) % 4 ==3:
+									scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], 1000])
+								elif len(tokens) % 4 == 0:
+									scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], tokens[4*i+3]])
 					if len(tokens) == 0:
 						scales[-1].append(["lin", "auto", "auto", 1000])
 				elif token0 == "-eos":
