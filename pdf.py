@@ -35,6 +35,41 @@ for frame in frames:
 		task = tasks[i]
 		field_name = task
 		scale_desc = scales[i]
+		if scale_desc[0] == "proj" or scale_desc[0] == "projection":
+			proj = yt.ProjectionPlot(ds, axis, field_name)
+			if (min != "auto"):
+				if verbose:
+					print("creating projection of %s along %s-axis, in limits (%f, %f)"%(field_name, axis, min, max))
+				proj.set_zlim(field_name, min, max)
+			elif verbose:
+				print("creating projection of %s along %s-axis, in automatically set limits"%(field_name, axis))
+			proj.save('%s/pdf/%04d'%(path, frame))
+		else:
+			print("fetching data for %s"%field_name)
+			data = ds.all_data()[field_name].v
+			volumes = ds.all_data()['cell_volume'].v
+			merged = list(zip(data,volumes))
+			print("sorting... (length = %d)"%(len(data)))
+			merged.sort(key=lambda x: x[0])
+			print("converting back to lists...")
+#			data, volumes = (list (e) for e in merged)
+			data, volumes = map(list, zip(*merged))
+			print("sorted!")
+			n = 1000;
+			V = 1.0;
+			v = 0;
+			e0 = data[0]
+			P = []
+			for i in range(len(data)):
+				if (v > V/n):
+					P.append([0.5*(data[i] + e0), v/(data[i] - e0)])
+					v = 0
+					e0 = data[i]
+				v += volumes[i]
+			P.append([0.5*(data[-1] + e0), v/(data[-1] - e0)])
+			print('saving pdf to %s/pdf/%04d_%s.txt'%(path, frame, field_name))
+			numpy.savetxt('%s/pdf/%04d_%s.txt'%(path, frame, field_name), P)
+'''
 		field_bins = numpy.zeros_like([])
 		make_projection = False
 		for j in range(len(scale_desc)):
@@ -98,5 +133,6 @@ for frame in frames:
 			if verbose:
 				print("correcting norm: %f"%norm)
 			P = [[P[i][0], P[i][1]/norm] for i in range(len(P)) if P[i][1] > 1e-10 or (i == 0 or i == len(P) - 1)]
-			print('saving pdf to %s/pdf/%04d_%s.txt'%(path, frame, field_name))
-			numpy.savetxt('%s/pdf/%04d_%s.txt'%(path, frame, field_name), P)
+'''
+#			print('saving pdf to %s/pdf/%04d_%s.txt'%(path, frame, field_name))
+#			numpy.savetxt('%s/pdf/%04d_%s.txt'%(path, frame, field_name), P)

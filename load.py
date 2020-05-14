@@ -91,7 +91,7 @@ def load_params(input_filename):
 			input.close()
 			print("path: %s"%(path))
 			print("data file names: %sXXXX/%sXXXX"%(filenames[0],filenames[1]))
-			if len(frames) > 1 and frames[2]-frames[1] > 1:
+			if len(frames) > 1 and frames[1]-frames[0] > 1:
 			        print("frames: %s%04d/%s%04d to %s%04d/%s%04d, skip %d"%(
 			filenames[0], frames[0], filenames[1], frames[0],
 			filenames[0], frames[-1], filenames[1], frames[-1], frames[2]-frames[1]-1))

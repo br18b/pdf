@@ -1,14 +1,14 @@
--p	
+-p	/scratch/projects/grid/MS0
 -f	DD data
--r	1 171
+-r	16 17
 -v
--t	rho lin auto auto 10000
+-t	rho
 	vx
 	vy
 	vz
 	absv
-	Ek log auto auto 10000
-	Ep lin auto auto 10000
+	Ek
+	Ep
 //	|gradrho|
 //	v.gradrho
 //	divv
