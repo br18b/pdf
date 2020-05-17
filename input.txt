@@ -1,14 +1,14 @@
--p	/scratch/projects/grid/MS0
+-p	/mnt/d/scratch/projects/importance_sampling/
 -f	DD data
--r	16 17
+-r	227 227
 -v
--t	rho
-	vx
-	vy
-	vz
-	absv
-	Ek
-	Ep
+-t	rho weighted 100
+	vx 1000
+	vy 1000
+	vz 1000
+	absv 1000
+	Ek weighted 100
+	Et 5000
 //	|gradrho|
 //	v.gradrho
 //	divv

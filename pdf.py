@@ -35,7 +35,7 @@ for frame in frames:
 		task = tasks[i]
 		field_name = task
 		scale_desc = scales[i]
-		if scale_desc[0] == "proj" or scale_desc[0] == "projection":
+		if len(scale_desc) > 0 and (scale_desc[0] == "proj" or scale_desc[0] == "projection"):
 			proj = yt.ProjectionPlot(ds, axis, field_name)
 			if (min != "auto"):
 				if verbose:
@@ -51,22 +51,37 @@ for frame in frames:
 			merged = list(zip(data,volumes))
 			print("sorting... (length = %d)"%(len(data)))
 			merged.sort(key=lambda x: x[0])
-			print("converting back to lists...")
+#			print("converting back to lists...")
 #			data, volumes = (list (e) for e in merged)
-			data, volumes = map(list, zip(*merged))
-			print("sorted!")
-			n = 1000;
+#			data, volumes = map(list, zip(*merged))
+			print("sorted!", merged[0])
+			n = 100;
+			for s in scale_desc:
+				if s.isnumeric():
+					n = int(s)
+					break
 			V = 1.0;
 			v = 0;
-			e0 = data[0]
+			e0 = merged[0][0]
 			P = []
-			for i in range(len(data)):
-				if (v > V/n):
-					P.append([0.5*(data[i] + e0), v/(data[i] - e0)])
+			weighted = False
+			if len(scale_desc) > 0 and scale_desc[0] == "weighted":
+				weighted = True
+			if weighted:
+				print("creating (weighted) probability distribution, n = %d"%n)
+			else:
+				print("creating probability distribution, n = %d"%n)
+			for i in range(len(merged)):
+				if weighted:
+					crit = V/(n*(1+1/(1e-10+abs(merged[i][0]))))
+				else:
+					crit = V/n
+				if (v > crit):
+					P.append([0.5*(merged[i][0] + e0), v/(merged[i][0] - e0)])
 					v = 0
-					e0 = data[i]
-				v += volumes[i]
-			P.append([0.5*(data[-1] + e0), v/(data[-1] - e0)])
+					e0 = merged[i][0]
+				v += merged[i][1]
+			P.append([0.5*(merged[-1][0] + e0), v/(merged[-1][0] - e0)])
 			print('saving pdf to %s/pdf/%04d_%s.txt'%(path, frame, field_name))
 			numpy.savetxt('%s/pdf/%04d_%s.txt'%(path, frame, field_name), P)
 '''

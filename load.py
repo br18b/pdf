@@ -58,7 +58,8 @@ def load_params(input_filename):
 				elif token0 == "tasks" or token0 == "-t":
 					tasks.append(fields[tokens[0]])
 					tokens = tokens[1:]
-					scales.append([])
+					scales.append(tokens)
+					'''
 					number_of_ranges = -(-len(tokens)//4)
 					print("tokens length: %d, number of ranges: %d"%(len(tokens), number_of_ranges))
 					for i in range(number_of_ranges):
@@ -85,6 +86,7 @@ def load_params(input_filename):
 									scales[-1].append([tokens[4*i], tokens[4*i+1], tokens[4*i+2], tokens[4*i+3]])
 					if len(tokens) == 0:
 						scales[-1].append(["lin", "auto", "auto", 1000])
+					'''
 				elif token0 == "-eos":
 					eos = tokens[0]
 				last_token = token0
@@ -101,12 +103,15 @@ def load_params(input_filename):
 			filenames[0], frames[-1], filenames[1], frames[-1]))
 			print("tasks:\n")
 			for i in range(len(tasks)):
+				'''
 				if scales[i] == "lin":
 					print("field: %s, in linear scale"%tasks[i])
 				elif scales[i] == "log":
 					print("field: %s, in logarithmic scale"%tasks[i])
 				elif scales[i] == "symlog":
 					print("field: %s, in symmetric logarithmic scale"%tasks[i])
+				'''
+				print("field %s"%tasks[i])
 			return path, filenames, frames, tasks, scales, verbose
 	except IOError:
 		print("File %s not found"%input_filename)	
