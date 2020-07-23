@@ -58,6 +58,12 @@ def load_params(input_filename):
 				elif token0 == "tasks" or token0 == "-t":
 					tasks.append(fields[tokens[0]])
 					tokens = tokens[1:]
+					if len(tokens) == 2:
+						tokens.extend(["auto", "auto"])
+					elif len(tokens) == 3:
+						tokens.append("auto")
+					elif len(tokens) > 4:
+						tokens = tokens[0:3]
 					scales.append(tokens)
 					'''
 					number_of_ranges = -(-len(tokens)//4)
