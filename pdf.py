@@ -4,6 +4,7 @@ import load_operators
 from load import load_params
 from yt.funcs import mylog
 import sys
+yt.enable_parallelism()
 
 mylog.setLevel(50)
 
@@ -36,13 +37,15 @@ for frame in frames:
 		field_name = task
 		scale_desc = scales[i]
 		if len(scale_desc) > 0 and (scale_desc[0] == "proj" or scale_desc[0] == "projection"):
+#			print(scale_desc)
+			axis = scale_desc[1]
+			min = scale_desc[2]
+			max = scale_desc[3]
+			if verbose:
+				print("creating projection of %s along %s, min: %s, max: %s"%(field_name, axis, min, max))
 			proj = yt.ProjectionPlot(ds, axis, field_name)
 			if (min != "auto"):
-				if verbose:
-					print("creating projection of %s along %s-axis, in limits (%f, %f)"%(field_name, axis, min, max))
 				proj.set_zlim(field_name, min, max)
-			elif verbose:
-				print("creating projection of %s along %s-axis, in automatically set limits"%(field_name, axis))
 			proj.save('%s/pdf/%04d'%(path, frame))
 		else:
 			print("fetching data for %s"%field_name)
@@ -84,6 +87,7 @@ for frame in frames:
 			P.append([0.5*(merged[-1][0] + e0), v/(merged[-1][0] - e0)])
 			print('saving pdf to %s/pdf/%04d_%s.txt'%(path, frame, field_name))
 			numpy.savetxt('%s/pdf/%04d_%s.txt'%(path, frame, field_name), P)
+			del data
 '''
 		field_bins = numpy.zeros_like([])
 		make_projection = False
@@ -127,6 +131,7 @@ for frame in frames:
 				foo = 0.5*(maxval-minval+numpy.sqrt(4+(maxval - minval)**2))
 				field_bins = numpy.concatenate((field_bins, (numpy.full(N, maxval + 1.0/foo) - numpy.logspace(numpy.log10(1.0/foo), numpy.log10(foo), N))[::-1]))
 		if make_projection:
+			print("creating projection of %s along %s"%(field_name, axis))
 			proj = yt.ProjectionPlot(ds, axis, field_name)
 			if (min != "auto"):
 				if verbose:
